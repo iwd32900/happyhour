@@ -45,6 +45,7 @@ def connect(sid, environ):
 async def req_attendees(sid, data):
     print("req_attendees ", data)
     baseRoom = data['baseRoom']
+    sio.enter_room(sid, baseRoom)
     if baseRoom not in all_parties:
         return # no need to send empty event
     tables = []
@@ -62,20 +63,29 @@ async def join_room(sid, data):
     newRoomName = data['roomName']
     userID = data['userID']
     unjoin_user(sid, userID, newBaseRoom)
+
     sid_to_user[sid] = userID
-    curr_rooms[userID] = (newBaseRoom, newRoomName)
-    party = all_parties.setdefault(newBaseRoom, {"tables": {}})
-    table = party["tables"].setdefault(newRoomName, {})
-    table[userID] = data['displayName']
     sio.enter_room(sid, newBaseRoom)
+    curr_rooms[userID] = (newBaseRoom, newRoomName)
+
+    if newRoomName is not None:
+        party = all_parties.setdefault(newBaseRoom, {"tables": {}})
+        table = party["tables"].setdefault(newRoomName, {})
+        table[userID] = data['displayName']
+
     await sio.emit('join_room', data, room=newBaseRoom)
 
 @sio.event
-def disconnect(sid):
+async def disconnect(sid):
     print('disconnect ', sid)
-    if sid in sid_to_user:
-        unjoin_user(sid, sid_to_user[sid])
-        del sid_to_user[sid]
+    if sid not in sid_to_user:
+        return
+    user_id = sid_to_user[sid]
+    if user_id in curr_rooms:
+        base_room, _ = curr_rooms[user_id]
+        await sio.emit('leave_party', {'userID': user_id}, room=base_room)
+    unjoin_user(sid, user_id)
+    del sid_to_user[sid]
 
 def unjoin_user(sid, userID, newBaseRoom=None):
     if userID not in curr_rooms:
@@ -96,4 +106,4 @@ app.router.add_static('/static', 'static')
 app.router.add_get('/', index)
 
 if __name__ == '__main__':
-    web.run_app(app, port=5000)
+    web.run_app(app, port=26614)

@@ -143,6 +143,10 @@
       console.log('join_room', data);
       app.set_room({userID: data.userID, displayName: data.displayName}, data.roomName);
     });
+    socket.on('leave_party', (data) => {
+      console.log('leave_party', data);
+      app.set_room({userID: data.userID, displayName: ""}, null);
+    });
     socket.on('error', (error) => {
       console.log('error!', error);
     });
@@ -164,7 +168,11 @@
         parentNode: document.querySelector('#meet')
       };
       meeting = new JitsiMeetExternalAPI(domain, options);
-      meeting.executeCommand('subject', '');
+      meeting.executeCommand('subject', ' ');
+      meeting.addEventListener('readyToClose', function() {
+        console.log("Exited Jitsi meeting, y'all...");
+        socket.emit('join_room', {baseRoom: baseRoom, roomName: null, displayName: displayName, userID: userID})
+      })
       socket.emit('join_room', {baseRoom: baseRoom, roomName: roomName, displayName: displayName, userID: userID})
       currentRoom = roomName;
       // app.set_room({userID: userID, displayName: displayName}, roomName);
@@ -220,7 +228,7 @@
               newTables.push(newTable);
             }
           }
-          if (newRoom) {
+          if (newRoom && newRoomName !== null) {
             var newTable = {roomName: newRoomName, people: [newPerson]};
             newTables.push(newTable);
           }
