@@ -115,20 +115,37 @@
   </div>
 
   <script>
-    // const socket = io('http://localhost:8000');
-    const socket = io();
-    socket.on('connect', () => {
-      console.log("Connected", socket.connected); // true
-    });
-    socket.on('news', (data) => {
-      console.log(data);
-      socket.emit('my other event', { my: 'data' });
-    });
+    function random_id(len) {
+      const plusChars = '23456789CFGHJMPQRVWX'; // 20 chars from Open Location Codes -- avoids spelling words
+      var randomName = '';
+      for(var i = 0; i < len; i++) {
+        randomName += plusChars.charAt(Math.floor(Math.random() * plusChars.length));
+      }
+      return randomName;
+    }
 
-    const displayName = 'J. Doe';
-    const userID = '123456';
+    const displayName = window.prompt("Your name, as displayed to others:");
+    const userID = random_id(12);
     const baseRoom = 'nei3meeX';
     var currentRoom = null;
+
+    // const socket = io('http://localhost:8000');
+    const socket = io('/');
+    socket.on('connect', () => {
+      console.log("Connected", socket.connected); // true
+      socket.emit('req_attendees', {baseRoom: baseRoom});
+  });
+    socket.on('attendees', (data) => {
+      console.log('attendees', data);
+      app.tables = data;
+    });
+    socket.on('join_room', (data) => {
+      console.log('join_room', data);
+      app.set_room({userID: data.userID, displayName: data.displayName}, data.roomName);
+    });
+    socket.on('error', (error) => {
+      console.log('error!', error);
+    });
 
     var meeting = null;
     function join_room(roomName) {
@@ -147,20 +164,11 @@
         parentNode: document.querySelector('#meet')
       };
       meeting = new JitsiMeetExternalAPI(domain, options);
-      meeting.executeCommand('subject', 'New Conference Subject');
-      socket.emit('JoinRoom', {roomName: roomName, displayName: displayName, userID: userID})
+      meeting.executeCommand('subject', '');
+      socket.emit('join_room', {baseRoom: baseRoom, roomName: roomName, displayName: displayName, userID: userID})
       currentRoom = roomName;
-      app.set_room({userID: userID, displayName: displayName}, roomName);
+      // app.set_room({userID: userID, displayName: displayName}, roomName);
       return false;
-    }
-
-    function random_id(len) {
-      const plusChars = '23456789CFGHJMPQRVWX'; // 20 chars from Open Location Codes -- avoids spelling words
-      var randomName = '';
-      for(var i = 0; i < len; i++) {
-        randomName += plusChars.charAt(Math.floor(Math.random() * plusChars.length));
-      }
-      return randomName;
     }
 
     function new_room() {
@@ -222,12 +230,12 @@
       },
     })
 
-    app.set_room({userID: '1-1', displayName: 'Katy Davis'}, 'Vooz5AeT');
-    app.set_room({userID: '2-1', displayName: 'Katy Davis'}, 'Lieboh9i');
-    app.set_room({userID: '2-2', displayName: 'Evan Davis'}, 'Lieboh9i');
-    app.set_room({userID: '3-1', displayName: 'Katy Davis'}, 'ooNg4oov');
-    app.set_room({userID: '3-2', displayName: 'Evan Davis'}, 'ooNg4oov');
-    app.set_room({userID: '3-3', displayName: 'Ben Davis'}, 'ooNg4oov');
+    // app.set_room({userID: '1-1', displayName: 'Katy Davis'}, 'Vooz5AeT');
+    // app.set_room({userID: '2-1', displayName: 'Katy Davis'}, 'Lieboh9i');
+    // app.set_room({userID: '2-2', displayName: 'Evan Davis'}, 'Lieboh9i');
+    // app.set_room({userID: '3-1', displayName: 'Katy Davis'}, 'ooNg4oov');
+    // app.set_room({userID: '3-2', displayName: 'Evan Davis'}, 'ooNg4oov');
+    // app.set_room({userID: '3-3', displayName: 'Ben Davis'}, 'ooNg4oov');
   </script>
 
 </body>
