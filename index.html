@@ -1,0 +1,199 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- development version, includes helpful console warnings -->
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <!-- production version, optimized for size and speed -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+
+  <script src='https://meet.jit.si/external_api.js'></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.dev.js"></script>
+
+  <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #content {
+      /* background-color: cadetblue; */
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    #headbar {
+      /* background-color: coral; */
+      flex: 0 1 auto;
+      padding: 0.5em 2em;
+    }
+    #main {
+      /* background-color:palevioletred; */
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      overflow: auto; /* required for #tables to scroll */
+    }
+    #tables {
+      /* background-color: seagreen; */
+      max-width: 25%;
+      flex: 0 1 auto;
+      overflow: auto; /* too many tables? make this pane scroll */
+    }
+    #meet {
+      background-color: #eeeeee;
+      min-width: 75%;
+      flex: 1 0 auto;
+    }
+
+    .new_button_div {
+      margin: 1em;
+    }
+    .button-100 {
+      width: 100%;
+      display: block;
+      color: white;
+      border-radius: 4px;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    }
+    .button-new {
+      background: rgb(223, 117, 20);
+    }
+    .button-join1 {
+      background: hsla(194, 80%, 56%, 1);
+    }
+    .button-join2 {
+      background: hsla(194, 60%, 66%, 1);
+    }
+    .button-join3 {
+      background: hsla(194, 40%, 76%, 1);
+    }
+
+    .table {
+      /* background-color: #eeeeee; */
+      border: thin solid #dddddd;
+      border-radius: 4px;
+      padding: 1em;
+      margin: 1em;
+      line-height: 1.4em;
+    }
+  </style>
+</head>
+<body>
+
+  <div id='content'>
+    <div id='headbar'>Menu content</div>
+    <div id='main'>
+      <div id='tables'>
+        <div class='new_button_div'>
+          <button class='pure-button button-100 button-new' onclick='return new_room()'>Start New Table</button>
+        </div>
+        <div id='app'>
+          <div class='table' v-for='table in tables' :key='table.roomName'>
+            <div v-for='person in table.people' :key='person.userID'>{{ person.displayName }}</div>
+            <button class='pure-button button-100'
+              v-bind:class="button_class(table)"
+              @click='join_room(table.roomName)'
+              >Join Table</button>
+          </div>
+        </div>
+      </div>
+      <div id='meet'></div>
+    </div>
+  </div>
+
+  <script>
+    // const socket = io('http://localhost:8000');
+    const socket = io();
+    socket.on('connect', () => {
+      console.log("Connected", socket.connected); // true
+    });
+    socket.on('news', (data) => {
+      console.log(data);
+      socket.emit('my other event', { my: 'data' });
+    });
+
+    const displayName = 'J. Doe';
+    const userID = '123456';
+    const baseRoom = 'nei3meeX';
+
+    var meeting = null;
+    function join_room(roomName) {
+      if (meeting !== null) {
+        meeting.dispose();
+      }
+      const domain = 'meet.jit.si';
+      const options = {
+        roomName: baseRoom + '-' + roomName,
+        // width: 700, // 'px', 'em', 'pt' or '%'
+        // height: 700,
+        userInfo: {
+          // email: 'email@jitsiexamplemail.com',
+          displayName: displayName
+        },
+        parentNode: document.querySelector('#meet')
+      };
+      meeting = new JitsiMeetExternalAPI(domain, options);
+      meeting.executeCommand('subject', 'New Conference Subject');
+      socket.emit('JoinRoom', {roomName: roomName, displayName: displayName, userID: userID})
+      return false;
+    }
+
+    function random_id(len) {
+      const plusChars = '23456789CFGHJMPQRVWX'; // 20 chars from Open Location Codes -- avoids spelling words
+      var randomName = '';
+      for(var i = 0; i < len; i++) {
+        randomName += plusChars.charAt(Math.floor(Math.random() * plusChars.length));
+      }
+      return randomName;
+    }
+
+    function new_room() {
+      return join_room(random_id(10));
+    }
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        tables: [
+          {
+            roomName: 'Vooz5AeT',
+            people: [
+              {userID: '1', displayName: 'Katy Davis'},
+            ]
+          },
+          {
+            roomName: 'Lieboh9i',
+            people: [
+              {userID: '1', displayName: 'Katy Davis'},
+              {userID: '2', displayName: 'Evan Davis'},
+            ]
+          },
+          {
+            roomName: 'ooNg4oov',
+            people: [
+              {userID: '1', displayName: 'Katy Davis'},
+              {userID: '2', displayName: 'Evan Davis'},
+              {userID: '3', displayName: 'Ben Davis'},
+            ]
+          },
+        ]
+      },
+      methods: {
+        join_room: join_room,
+        button_class: function(table) {
+          return 'button-join' + Math.min(3, table.people.length);
+        },
+        set_room: function(person, roomName) {
+
+        },
+      },
+    })
+  </script>
+
+</body>
+</html>
