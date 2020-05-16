@@ -81,6 +81,12 @@
       margin: 1em;
       line-height: 1.4em;
     }
+    .table-occupied {
+      background-color: #dddddd;
+    }
+    .person-me {
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -93,10 +99,12 @@
           <button class='pure-button button-100 button-new' onclick='return new_room()'>Start New Table</button>
         </div>
         <div id='app'>
-          <div class='table' v-for='table in tables' :key='table.roomName'>
-            <div v-for='person in table.people' :key='person.userID'>{{ person.displayName }}</div>
-            <button class='pure-button button-100'
-              v-bind:class="button_class(table)"
+          <div class='table' :class="table_class(table)" v-for='table in tables' :key='table.roomName'>
+            <div :class="person_class(person)" v-for='person in table.people' :key='person.userID'>{{ person.displayName }}</div>
+            <button
+              v-if='not_current(table)'
+              class='pure-button button-100'
+              :class="button_class(table)"
               @click='join_room(table.roomName)'
               >Join Table</button>
           </div>
@@ -120,6 +128,7 @@
     const displayName = 'J. Doe';
     const userID = '123456';
     const baseRoom = 'nei3meeX';
+    var currentRoom = null;
 
     var meeting = null;
     function join_room(roomName) {
@@ -140,6 +149,8 @@
       meeting = new JitsiMeetExternalAPI(domain, options);
       meeting.executeCommand('subject', 'New Conference Subject');
       socket.emit('JoinRoom', {roomName: roomName, displayName: displayName, userID: userID})
+      currentRoom = roomName;
+      app.set_room({userID: userID, displayName: displayName}, roomName);
       return false;
     }
 
@@ -160,39 +171,63 @@
       el: '#app',
       data: {
         tables: [
-          {
-            roomName: 'Vooz5AeT',
-            people: [
-              {userID: '1', displayName: 'Katy Davis'},
-            ]
-          },
-          {
-            roomName: 'Lieboh9i',
-            people: [
-              {userID: '1', displayName: 'Katy Davis'},
-              {userID: '2', displayName: 'Evan Davis'},
-            ]
-          },
-          {
-            roomName: 'ooNg4oov',
-            people: [
-              {userID: '1', displayName: 'Katy Davis'},
-              {userID: '2', displayName: 'Evan Davis'},
-              {userID: '3', displayName: 'Ben Davis'},
-            ]
-          },
+          // {
+          //   roomName: 'Lieboh9i',
+          //   people: [
+          //     {userID: '1', displayName: 'Katy Davis'},
+          //     {userID: '2', displayName: 'Evan Davis'},
+          //   ]
+          // },
         ]
       },
       methods: {
         join_room: join_room,
+        table_class: function(table) {
+          return table.roomName === currentRoom ? 'table-occupied' : '';
+        },
         button_class: function(table) {
           return 'button-join' + Math.min(3, table.people.length);
         },
-        set_room: function(person, roomName) {
-
+        person_class: function(person) {
+          return person.userID === userID ? 'person-me' : '';
+        },
+        not_current: function(table) {
+          return table.roomName !== currentRoom;
+        },
+        set_room: function(newPerson, newRoomName) {
+          var newTables = [];
+          var newRoom = true;
+          for (table of this.tables) {
+            var newTable = {roomName: table.roomName, people: []};
+            for (person of table.people) {
+              if (person.userID !== newPerson.userID) {
+                newTable.people.push(person);
+              }
+            }
+            if (newTable.roomName == newRoomName) {
+              newRoom = false;
+              newTable.people.push(newPerson);
+            }
+            if (newTable.people.length > 0) {
+              newTables.push(newTable);
+            }
+          }
+          if (newRoom) {
+            var newTable = {roomName: newRoomName, people: [newPerson]};
+            newTables.push(newTable);
+          }
+          newTables.sort(function(a, b) { return a.people.length - b.people.length });
+          this.tables = newTables; // trigger reactive update
         },
       },
     })
+
+    app.set_room({userID: '1-1', displayName: 'Katy Davis'}, 'Vooz5AeT');
+    app.set_room({userID: '2-1', displayName: 'Katy Davis'}, 'Lieboh9i');
+    app.set_room({userID: '2-2', displayName: 'Evan Davis'}, 'Lieboh9i');
+    app.set_room({userID: '3-1', displayName: 'Katy Davis'}, 'ooNg4oov');
+    app.set_room({userID: '3-2', displayName: 'Evan Davis'}, 'ooNg4oov');
+    app.set_room({userID: '3-3', displayName: 'Ben Davis'}, 'ooNg4oov');
   </script>
 
 </body>
