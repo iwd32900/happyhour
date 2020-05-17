@@ -24,6 +24,7 @@ Modify `server_default` line to `happyhour.ianwdavis.com`
 Test to make sure auto-renewal is working: `sudo certbot renew --dry-run`
 
 ## Configure SSH
+In `~/.ssh/config`:
 ```
 Host happyhour
 HostName happyhour.ianwdavis.com
@@ -35,4 +36,76 @@ IdentityFile ~/.ssh/LightsailDefaultKey-us-east-1.pem
 Remote: `git init --bare happyhour.git`
 Local: `git remote add origin ssh://happyhour/home/ubuntu/happyhour.git`
 Local: `git push --set-upstream origin master`
-Remote: `git clone happyhour.git/ happyhour`
+
+Remote:
+```
+git clone happyhour.git/ happyhour
+cd happyhour
+sudo apt install python3-pip
+sudo pip3 install -r requirements.txt
+python3 server.py
+```
+
+## Configure Nginx as reverse proxy
+
+Resources:
+- https://flask-socketio.readthedocs.io/en/latest/#using-nginx-as-a-websocket-reverse-proxy
+- https://docs.aiohttp.org/en/stable/deployment.html#nginx-configuration
+- https://www.nginx.com/blog/websocket-nginx/
+
+In `/etc/nginx/sites-available/default`, at the top level:
+```
+map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+}
+
+upstream aiohttp {
+        server 127.0.0.1:26614 max_fails=0;
+}
+```
+
+Inside the `server` block:
+```
+        location / {
+                include proxy_params;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade $http_upgrade;
+                proxy_set_header Connection $connection_upgrade;
+                proxy_redirect off;
+                proxy_buffering off;
+                proxy_pass http://aiohttp;
+        }
+```
+
+In `/etc/nginx/nginx.conf`:
+```
+gzip off;
+```
+
+Having `gzip on` leads to lots of 400 errors with WebSockets!
+
+Test config: `sudo nginx -t`
+Restart: `sudo systemctl restart nginx`
+
+## Make Python start automatically
+
+`sudo apt install monit`
+
+In `/etc/monit/monitrc`, uncomment:
+```
+set httpd port 2812 and
+    use address localhost  # only accept connection from localhost
+    allow localhost        # allow localhost to connect to the server and
+```
+and do `sudo monit reload; sudo monit status`.
+
+Write `/etc/monit/conf-available/happyhour`:
+```
+ check process happyhour matching /home/ubuntu/happyhour/server.py
+   start program = "/bin/bash -c 'cd /home/ubuntu/happyhour && /usr/bin/python3 /home/ubuntu/happyhour/server.py'" as uid "ubuntu" and gid "ubuntu"
+   stop program = "/usr/bin/pkill --full /home/ubuntu/happyhour/server.py"
+```
+
+Symbolic link to `/etc/monit/conf-enabled/happyhour`
+and run `sudo monit reload; sudo monit status`.
