@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import os, pathlib
+os.chdir(pathlib.Path(__file__).parent)
+
 from aiohttp import web
 import socketio
 
