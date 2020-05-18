@@ -102,9 +102,9 @@ and do `sudo monit reload; sudo monit status`.
 
 Write `/etc/monit/conf-available/happyhour`:
 ```
- check process happyhour matching /home/ubuntu/happyhour/server.py
-   start program = "/bin/bash -c 'cd /home/ubuntu/happyhour && /usr/bin/python3 /home/ubuntu/happyhour/server.py'" as uid "ubuntu" and gid "ubuntu"
-   stop program = "/usr/bin/pkill --full /home/ubuntu/happyhour/server.py"
+ check process happyhour with pidfile /var/run/happyhour.pid
+   start program = "/home/ubuntu/happyhour/happyhour.sh start"  #as uid "ubuntu" and gid "ubuntu"
+   stop program = "/home/ubuntu/happyhour/happyhour.sh stop"  #as uid "ubuntu" and gid "ubuntu"
 ```
 
 Symbolic link to `/etc/monit/conf-enabled/happyhour`
