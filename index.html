@@ -1,5 +1,6 @@
 <html>
 <head>
+  <title>Happy Hour</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -28,7 +29,8 @@
     #headbar {
       /* background-color: coral; */
       flex: 0 1 auto;
-      padding: 0.5em 2em;
+      padding: 8px 16px;
+      font-size: 24px;
     }
     #main {
       /* background-color:palevioletred; */
@@ -48,10 +50,16 @@
       background-color: #eeeeee;
       min-width: 75%;
       flex: 1 0 auto;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666666;
+      font-size: 24px;
     }
 
     .new_button_div {
-      margin: 1em;
+      margin: 16px;
     }
     .button-100 {
       width: 100%;
@@ -77,8 +85,8 @@
       /* background-color: #eeeeee; */
       border: thin solid #dddddd;
       border-radius: 4px;
-      padding: 1em;
-      margin: 1em;
+      padding: 16px;
+      margin: 16px;
       line-height: 1.4em;
     }
     .table-occupied {
@@ -92,7 +100,7 @@
 <body>
 
   <div id='content'>
-    <div id='headbar'>Menu content</div>
+    <div id='headbar'>Happy Hour &#x1F37B;</div>
     <div id='main'>
       <div id='tables'>
         <div class='new_button_div'>
@@ -110,7 +118,9 @@
           </div>
         </div>
       </div>
-      <div id='meet'></div>
+      <div id='meet'>
+        To get started, join a table or start a new one!
+      </div>
     </div>
   </div>
 
