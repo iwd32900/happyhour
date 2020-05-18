@@ -136,7 +136,8 @@
 
     const displayName = window.prompt("Your name, as displayed to others:");
     const userID = random_id(12);
-    const baseRoom = 'nei3meeX';
+    // const baseRoom = 'nei3meeX';
+    const baseRoom = window.location.pathname.split("/").pop(); // last path component
     var currentRoom = null;
 
     // const socket = io('http://localhost:8000');

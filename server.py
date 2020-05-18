@@ -9,11 +9,6 @@ sio = socketio.AsyncServer()
 app = web.Application()
 sio.attach(app)
 
-async def index(request):
-    """Serve the client-side application."""
-    with open('index.html') as f:
-        return web.Response(text=f.read(), content_type='text/html')
-
 #{baseRoom : {"tables": {roomName: {userID: displayName}}}}
 all_parties = {}
 # all_parties = {
@@ -105,8 +100,18 @@ def unjoin_user(sid, userID, newBaseRoom=None):
     if oldBaseRoom != newBaseRoom:
         sio.leave_room(sid, oldBaseRoom)
 
+async def index(request):
+    """Serve the client-side application."""
+    with open('index.html') as f:
+        return web.Response(text=f.read(), content_type='text/html')
+
+async def hh_page(request):
+    """Serve the client-side application."""
+    with open('hh_page.html') as f:
+        return web.Response(text=f.read(), content_type='text/html')
+
 app.router.add_static('/static', 'static')
-app.router.add_get('/', index)
+app.router.add_get('/hh/{base_room:[a-zA-Z0-9._-]{8,64}}', hh_page)
 
 if __name__ == '__main__':
     web.run_app(app, port=26614)

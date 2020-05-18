@@ -109,3 +109,9 @@ Write `/etc/monit/conf-available/happyhour`:
 
 Symbolic link to `/etc/monit/conf-enabled/happyhour`
 and run `sudo monit reload; sudo monit status`.
+
+## Take 2
+
+Can't make Monit work properly (without a pid file?).
+
+`nohup python3 server.py &`
