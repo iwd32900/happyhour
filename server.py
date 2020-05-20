@@ -111,6 +111,7 @@ async def hh_page(request):
         return web.Response(text=f.read(), content_type='text/html')
 
 app.router.add_static('/static', 'static')
+app.router.add_get('/', index)
 app.router.add_get('/hh/{base_room:[a-zA-Z0-9._-]{8,64}}', hh_page)
 
 if __name__ == '__main__':

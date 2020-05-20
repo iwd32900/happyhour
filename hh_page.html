@@ -166,6 +166,9 @@
     function join_room(roomName) {
       if (meeting !== null) {
         meeting.dispose();
+      } else {
+        // We're just starting -- remove initial instructions
+        document.getElementById("meet").innerHTML = "";
       }
       const domain = 'meet.jit.si';
       const options = {
@@ -183,6 +186,7 @@
       meeting.addEventListener('readyToClose', function() {
         console.log("Exited Jitsi meeting, y'all...");
         socket.emit('join_room', {baseRoom: baseRoom, roomName: null, displayName: displayName, userID: userID})
+        currentRoom = null;
       })
       socket.emit('join_room', {baseRoom: baseRoom, roomName: roomName, displayName: displayName, userID: userID})
       currentRoom = roomName;

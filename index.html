@@ -1,0 +1,141 @@
+<html>
+<head>
+  <title>Happy Hour</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- development version, includes helpful console warnings -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script> -->
+  <!-- production version, optimized for size and speed -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+
+  <link rel="stylesheet" href="https://unpkg.com/purecss@2.0.3/build/pure-min.css" integrity="sha384-cg6SkqEOCV1NbJoCu11+bm0NvBRc8IYLRGXkmNrqUBfTjmMYwNKPWBTIKyw9mHNJ" crossorigin="anonymous">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    #content {
+      /* background-color: cadetblue; */
+      /* width: 100%; */
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      /* align-items: stretch; */
+    }
+    #headbar {
+      /* background-color: coral; */
+      flex: 0 1 auto;
+      padding: 8px 16px;
+      font-size: 32px;
+    }
+    #main {
+      /* background-color:palevioletred; */
+      flex: 0 1 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    #main div {
+      max-width: 40em;
+      line-height: 1.5em;
+    }
+    #footbar {
+      background-color: #333333;
+      color: #cccccc;
+      flex: 0 1 auto;
+      padding: 8px 16px;
+    }
+    #footbar a {
+      color: #ffffff;
+      text-decoration: none;
+    }
+    #hh_url {
+      font-size: 24px;
+      color: hsla(194, 80%, 50%, 1);
+      padding: 16px;
+      background-color: hsla(194, 80%, 95%, 1);;
+    }
+    #hh_url a {
+      color: hsla(194, 80%, 50%, 1);
+      text-decoration: none;
+    }
+    .deemph {
+      color: #aaaaaa;
+    }
+
+    .new_button_div {
+      margin: 16px;
+    }
+    .button-100 {
+      width: 100%;
+      display: block;
+      color: white;
+      border-radius: 4px;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    }
+    .button-new {
+      background: rgb(223, 117, 20);
+    }
+    .button-join1 {
+      background: hsla(194, 80%, 56%, 1);
+    }
+    .button-join2 {
+      background: hsla(194, 60%, 66%, 1);
+    }
+    .button-join3 {
+      background: hsla(194, 40%, 76%, 1);
+    }
+  </style>
+</head>
+<body>
+  <div id='content'>
+    <div id='headbar'>Happy Hour &#x1F37B;</div>
+    <div id='main'><div>
+      <p>
+        Happy Hour is a virtual mixer for large groups, from a dozen to hundreds.
+      </p>
+      <p>
+        With twenty people in one video chat, only one person can talk at a time.
+        This feels awkward, because in real life we chat in small groups.
+        Happy Hour gives you many small video chat "tables",
+        allows you to see who is at each one, and easily hop between them.
+      </p>
+      <p>
+        Just copy this link and send it to all your friends:
+      </p>
+      <p id='hh_url'></p>
+      <p class='deemph'>
+        Reload the page to generate a different unique link.
+      </p>
+      <p class='deemph'>
+        Please do NOT post the link on a public web page or Facebook group.
+        ANYONE with the link can join, and sadly,
+        there are some sick people out there who would love to ruin your party.
+        Email or private messages are the best ways to share the link.
+      </p>
+    </div></div>
+    <div id='footbar'>Created by <a href='https://ianwdavis.com'>Ian W. Davis</a></div>
+  </div>
+
+  <script>
+    function random_id(len) {
+      // Because this impacts security, good idea to use CSPRNG instead of Math.random()
+      var randomNums = new Uint32Array(len);
+      window.crypto.getRandomValues(randomNums);
+      const plusChars = '23456789CFGHJMPQRVWX'; // 20 chars from Open Location Codes -- avoids spelling words
+      var randomName = '';
+      for(var i = 0; i < len; i++) {
+        // randomName += plusChars.charAt(Math.floor(Math.random() * plusChars.length));
+        randomName += plusChars.charAt(randomNums[i] % plusChars.length);
+      }
+      return randomName;
+    }
+
+    var hh_url = window.location.href + "hh/" + random_id(16);
+    document.getElementById("hh_url").innerHTML = "<a href='"+hh_url+"'>"+hh_url+"</a>";
+  </script>
+</body>
+</html>
