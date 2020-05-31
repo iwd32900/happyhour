@@ -179,6 +179,9 @@
           // email: 'email@jitsiexamplemail.com',
           displayName: displayName
         },
+        interfaceConfigOverwrite: {
+          SHOW_CHROME_EXTENSION_BANNER: false,
+        },
         parentNode: document.querySelector('#meet')
       };
       meeting = new JitsiMeetExternalAPI(domain, options);

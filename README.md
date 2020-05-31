@@ -113,3 +113,12 @@ and run `sudo monit reload; sudo monit status`.
 The thing that took me forever was to figure out that `happyhour.sh`
 had to start the server **as a background process**.
 Otherwise, startup timed out, and Monit killed the process after 30 sec.
+
+## Nginx log analysis
+
+`sudo apt install goaccess`
+`goaccess --log-format=COMBINED <(zcat -f /var/log/nginx/access.log*)`
+
+# TODO
+
+- start in tiled view (https://github.com/jitsi/jitsi-meet/issues/5764)
