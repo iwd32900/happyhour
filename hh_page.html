@@ -162,6 +162,19 @@
       console.log('error!', error);
     });
 
+    function to_tile_view(details) {
+      console.log("to_tile_view", details);
+      if (meeting !== null) {
+        console.log("removing listener");
+        meeting.removeListener('tileViewChanged', to_tile_view);
+      }
+      if (details.enabled) {
+        // This seems backwards, but empirically it works...
+        console.log("toggling back");
+        meeting.executeCommand('toggleTileView');
+      }
+    }
+
     var meeting = null;
     function join_room(roomName) {
       if (meeting !== null) {
@@ -186,6 +199,12 @@
       };
       meeting = new JitsiMeetExternalAPI(domain, options);
       meeting.executeCommand('subject', ' ');
+
+      // Force tile view by toggling, and then toggling back if needed
+      // This wouldn't be so awkward if there was a set() function instead of just toggle()
+      meeting.addEventListener('tileViewChanged', to_tile_view);
+      meeting.executeCommand('toggleTileView');
+
       meeting.addEventListener('readyToClose', function() {
         console.log("Exited Jitsi meeting, y'all...");
         socket.emit('join_room', {baseRoom: baseRoom, roomName: null, displayName: displayName, userID: userID})
