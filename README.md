@@ -121,7 +121,6 @@ Otherwise, startup timed out, and Monit killed the process after 30 sec.
 
 # TODO
 
-- start in tiled view (https://github.com/jitsi/jitsi-meet/issues/5764)
 - allow naming tables
 - broadcast chat messages to all participants
 - re-broadcast which room people are in periodically (to make sure things are in sync)

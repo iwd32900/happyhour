@@ -192,6 +192,10 @@
           // email: 'email@jitsiexamplemail.com',
           displayName: displayName
         },
+        configOverwrite: {
+          resolution: 360, // vs. default 720, to save bandwidth
+          stereo: true, // https://community.jitsi.org/t/higher-audio-quality/31441/26
+        },
         interfaceConfigOverwrite: {
           SHOW_CHROME_EXTENSION_BANNER: false,
         },

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os, pathlib
 os.chdir(pathlib.Path(__file__).parent)
+import asyncio
 
 from aiohttp import web
 import socketio
@@ -34,6 +35,11 @@ all_parties = {}
 curr_rooms = {}
 #{sid: userID}
 sid_to_user = {}
+
+async def log_usage():
+    while True:
+        await asyncio.sleep(60)
+        print(f"{len(sid_to_user)} users connected to {len(all_parties)} parties")
 
 @sio.event
 def connect(sid, environ):
@@ -115,4 +121,5 @@ app.router.add_get('/', index)
 app.router.add_get('/hh/{base_room:[a-zA-Z0-9._-]{8,64}}', hh_page)
 
 if __name__ == '__main__':
+    asyncio.ensure_future(log_usage())
     web.run_app(app, port=26614)
