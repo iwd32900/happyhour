@@ -33,16 +33,15 @@ IdentityFile ~/.ssh/LightsailDefaultKey-us-east-1.pem
 ```
 
 ## Push code
-Remote: `git init --bare happyhour.git`
-Local: `git remote add origin ssh://happyhour/home/ubuntu/happyhour.git`
-Local: `git push --set-upstream origin master`
 
-Remote:
 ```
-git clone happyhour.git/ happyhour
+git clone https://github.com/iwd32900/happyhour.git
 cd happyhour
-sudo apt install python3-pip
-sudo pip3 install -r requirements.txt
+sudo apt install python3-pip python3-venv
+python3 -m venv venv
+source venv/bin/activate
+pip3 install -r requirements.txt
+mkdir static
 python3 server.py
 ```
 
@@ -113,6 +112,16 @@ and run `sudo monit reload; sudo monit status`.
 The thing that took me forever was to figure out that `happyhour.sh`
 had to start the server **as a background process**.
 Otherwise, startup timed out, and Monit killed the process after 30 sec.
+
+## Deploy updates
+
+```
+cd happyhour
+git pull
+pgrep -f happyhour    # optional
+sudo monit restart happyhour
+pgrep -f happyhour    # optional, should show different process ID
+```
 
 ## Nginx log analysis
 
