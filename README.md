@@ -16,13 +16,6 @@ create an `A` record for happyhour.ianwdavis.com pointing to the static IP.
 Wait for this to take effect -- may be a few minutes.
 Confirm new domain name in browser (HTTP).
 
-## Configure SSL
-`sudo apt install python3-certbot-nginx`
-`sudo vim /etc/nginx/sites-available/default`
-Modify `server_default` line to `happyhour.ianwdavis.com`
-`sudo certbot --nginx -d happyhour.ianwdavis.com`
-Test to make sure auto-renewal is working: `sudo certbot renew --dry-run`
-
 ## Configure SSH
 In `~/.ssh/config`:
 ```
@@ -52,40 +45,24 @@ Resources:
 - https://docs.aiohttp.org/en/stable/deployment.html#nginx-configuration
 - https://www.nginx.com/blog/websocket-nginx/
 
-In `/etc/nginx/sites-available/default`, at the top level:
 ```
-map $http_upgrade $connection_upgrade {
-        default upgrade;
-        '' close;
-}
-
-upstream aiohttp {
-        server 127.0.0.1:26614 max_fails=0;
-}
-```
-
-Inside the `server` block:
-```
-        location / {
-                include proxy_params;
-                proxy_http_version 1.1;
-                proxy_set_header Upgrade $http_upgrade;
-                proxy_set_header Connection $connection_upgrade;
-                proxy_redirect off;
-                proxy_buffering off;
-                proxy_pass http://aiohttp;
-        }
+cd /etc/nginx/sites-enabled/
+sudo ln -s ~/happyhour/happyhour.nginx
 ```
 
 In `/etc/nginx/nginx.conf`:
 ```
 gzip off;
 ```
-
 Having `gzip on` leads to lots of 400 errors with WebSockets!
 
 Test config: `sudo nginx -t`
 Restart: `sudo systemctl restart nginx`
+
+## Configure SSL
+`sudo apt install python3-certbot-nginx`
+`sudo certbot --nginx -d happyhour.ianwdavis.com`
+Test to make sure auto-renewal is working: `sudo certbot renew --dry-run`
 
 ## Make Python start automatically
 
