@@ -1,7 +1,8 @@
 # Configuring server
 
-## Install Nginx
 Start with AWS Lightsail Ubuntu 18.04 LTS
+
+## Install Nginx
 
 `sudo apt update`
 `sudo apt upgrade`
@@ -93,6 +94,11 @@ pgrep -f happyhour    # optional
 sudo monit restart happyhour
 pgrep -f happyhour    # optional, should show different process ID
 ```
+
+## Server security updates
+
+It looks like [unattended-upgrades](https://phoenixnap.com/kb/automatic-security-updates-ubuntu)
+is enabled by default on the Lightsail Ubuntu 18.04 instances.
 
 ## Nginx log analysis
 
