@@ -66,7 +66,11 @@ Test to make sure auto-renewal is working: `sudo certbot renew --dry-run`
 
 ## Make Python start automatically
 
-`sudo apt install monit`
+```
+sudo apt install monit
+cd /etc/monit/conf-enabled/
+sudo ln -s ~/happyhour/happyhour.monit
+```
 
 In `/etc/monit/monitrc`, uncomment:
 ```
@@ -75,16 +79,6 @@ set httpd port 2812 and
     allow localhost        # allow localhost to connect to the server and
 ```
 and do `sudo monit reload; sudo monit status`.
-
-Write `/etc/monit/conf-available/happyhour`:
-```
- check process happyhour with pidfile /var/run/happyhour.pid
-   start program = "/home/ubuntu/happyhour/happyhour.sh start"  #as uid "ubuntu" and gid "ubuntu"
-   stop program = "/home/ubuntu/happyhour/happyhour.sh stop"  #as uid "ubuntu" and gid "ubuntu"
-```
-
-Symbolic link to `/etc/monit/conf-enabled/happyhour`
-and run `sudo monit reload; sudo monit status`.
 
 The thing that took me forever was to figure out that `happyhour.sh`
 had to start the server **as a background process**.
